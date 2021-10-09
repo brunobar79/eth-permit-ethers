@@ -2,7 +2,8 @@ import { signTypedData_v4 } from "eth-sig-util";
 import { toBuffer } from 'ethereumjs-util';
 
 export const send = (provider: any, method: string, params?: any[]) => new Promise<any>((resolve, reject) => {
-  provider
+  const _provider = provider.provider || provider;
+  _provider
           .send(method, params)
           .then((r: any) => resolve(r))
           .catch((e: any) => reject(e));
