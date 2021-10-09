@@ -1,41 +1,11 @@
-const randomId = () => Math.floor(Math.random() * 10000000000);
+import { signTypedData_v4 } from "eth-sig-util";
+import { toBuffer } from 'ethereumjs-util';
 
 export const send = (provider: any, method: string, params?: any[]) => new Promise<any>((resolve, reject) => {
-  const payload = {
-    id: randomId(),
-    method,
-    params,
-  };
-  const callback = (err: any, result: any) => {
-    if (err) {
-      reject(err);
-    } else if (result.error) {
-      console.error(result.error);
-      reject(result.error);
-    } else {
-      resolve(result.result);
-    }
-  };
-
-  let _provider = provider.provider || provider
-
-  if (_provider.sendAsync) {
-    _provider.sendAsync(payload, callback);
-  } else {
-    _provider.send(payload, callback).catch((error: any) => {
-      if (
-        error.message ===
-        "Hardhat Network doesn't support JSON-RPC params sent as an object"
-      ) {
-        _provider
+  provider
           .send(method, params)
           .then((r: any) => resolve(r))
           .catch((e: any) => reject(e));
-      } else {
-        throw error;
-      }
-    });
-  }
 });
 
 export interface RSV {
@@ -44,16 +14,12 @@ export interface RSV {
   v: number;
 }
 
-export const signData = async (provider: any, fromAddress: string, typeData: any): Promise<RSV> => {
-  const typeDataString = typeof typeData === 'string' ? typeData : JSON.stringify(typeData);
-  const result = await send(provider, 'eth_signTypedData_v4', [fromAddress, typeDataString])
-    .catch((error: any) => {
-      if (error.message === 'Method eth_signTypedData_v4 not supported.') {
-        return send(provider, 'eth_signTypedData', [fromAddress, typeData]);
-      } else {
-        throw error;
-      }
-    });
+export const signData = async (provider: any, typeData: any): Promise<RSV> => {
+  const pkeyBuffer = toBuffer(provider.privateKey.substr(0,2) === '0x' ? provider.privateKey : `0x${provider.privateKey}`);
+
+  const result = signTypedData_v4(pkeyBuffer, {
+    data: typeData,
+  });
 
   return {
     r: result.slice(0, 66),

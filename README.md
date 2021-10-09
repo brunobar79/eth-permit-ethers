@@ -1,4 +1,6 @@
-# eth-permit
+# eth-permit-ethers
+
+NOTE: This package is almost an identical copy of [https://github.com/dmihal/eth-permit](https://github.com/dmihal/eth-permit) adjusted to work with ethers v5
 
 This package simplifies the process of signing `permit` messages for Ethereum tokens.
 
@@ -18,34 +20,29 @@ for signing both types of messages.
 
 ## Usage
 
-Install the package `eth-permit` using npm or yarn.
+Install the package `eth-permit-ethers` using npm or yarn.
 
 ### Dai-style permits
 
 ```javascript
-import { signDaiPermit } from 'eth-permit';
+import { signDaiPermit } from 'eth-permit-ethers';
 
-// Sign message using injected provider (ie Metamask).
-// You can replace window.ethereum with any other web3 provider.
-const result = await signDaiPermit(window.ethereum, tokenAddress, senderAddress, spender);
+// Sign message using an ethers provider
+const result = await signDaiPermit(wallet, tokenAddress, senderAddress, spender);
 
-await token.methods.permit(senderAddress, spender, result.nonce, result.expiry, true, result.v, result.r, result.s).send({
-  from: senderAddress,
-});
+await token.permit(senderAddress, spender, result.nonce, result.expiry, true, result.v, result.r, result.s);
 ```
 
 ### ERC2612-style permits
 
 ```javascript
-import { signERC2612Permit } from 'eth-permit';
+import { signERC2612Permit } from 'eth-permit-ethers';
 
 const value = web3.utils.toWei('1', 'ether');
 
-// Sign message using injected provider (ie Metamask).
-// You can replace window.ethereum with any other web3 provider.
-const result = await signERC2612Permit(window.ethereum, tokenAddress, senderAddress, spender, value);
+// Sign message using an ethers provider
+const result = await signERC2612Permit(wallet, tokenAddress, senderAddress, spender, value);
 
-await token.methods.permit(senderAddress, spender, value, result.deadline, result.v, result.r, result.s).send({
-  from: senderAddress,
-});
+await token.permit(senderAddress, spender, value, result.deadline, result.v, result.r, result.s);
+
 ```

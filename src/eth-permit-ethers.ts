@@ -118,7 +118,7 @@ export const signDaiPermit = async (
 
   const domain = await getDomain(provider, token);
   const typedData = createTypedDaiData(message, domain);
-  const sig = await signData(provider, holder, typedData);
+  const sig = await signData(provider, typedData);
 
   return { ...sig, ...message };
 };
@@ -144,7 +144,7 @@ export const signERC2612Permit = async (
 
   const domain = await getDomain(provider, token);
   const typedData = createTypedERC2612Data(message, domain);
-  const sig = await signData(provider, owner, typedData);
+  const sig = await signData(provider, typedData);
 
   return { ...sig, ...message };
 };
